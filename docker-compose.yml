@@ -1,0 +1,32 @@
+services:
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: prestashop
+    ports:
+      - "3306:3306"
+
+  prestashop:
+    image: prestashop/prestashop:latest
+    ports:
+      - "8080:80"
+    environment:
+      DB_SERVER: mysql
+      DB_NAME: prestashop
+      DB_USER: root
+      DB_PASSWD: root
+      PS_INSTALL_AUTO: 1
+      PS_DOMAIN: localhost:8080
+      PS_FOLDER_ADMIN: admin
+      PS_FOLDER_INSTALL: install
+      ADMIN_MAIL: admin@lodin.com
+      ADMIN_PASSWD: adminlodin123
+    volumes:
+      - prestashop_data:/var/www/html                          # ← volume Docker (permissions OK)
+      - ./module/lodin:/var/www/html/modules/lodin             # ← ton module
+    depends_on:
+      - mysql
+
+volumes:
+  prestashop_data:    # ← déclare le volume nommé
