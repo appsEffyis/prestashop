@@ -22,7 +22,9 @@ class LodinValidationModuleFrontController extends ModuleFrontController
 
         try {
             error_log('Attempting to generate payment link...');
-            $paymentLink = $this->module->generatePaymentLink($cart);
+            $result      = $this->module->generatePaymentLink($cart);
+            $paymentLink = $result['url'];
+            $invoiceId   = $result['invoiceId'];
             
             if ($paymentLink) {
                 error_log('Payment link received: ' . $paymentLink);
@@ -37,7 +39,7 @@ class LodinValidationModuleFrontController extends ModuleFrontController
                     $cart->getOrderTotal(true, Cart::BOTH),  // Fixed: Changed from TOTAL_PAYMENT to BOTH
                     $this->module->displayName,
                     null,
-                    [],
+                    ['transaction_id' => $invoiceId],
                     (int)$cart->id_currency,
                     false,
                     $customer->secure_key

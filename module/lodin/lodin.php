@@ -195,7 +195,7 @@ public function generatePaymentLink($cart)
     
     if ($paymentLink) {
         error_log('=== LODIN generatePaymentLink SUCCESS ===');
-        return $paymentLink;
+        return ['url' => $paymentLink, 'invoiceId' => $invoice_id];
     } else {
         error_log('ERROR: No URL in API response');
         throw new Exception('No payment URL in API response');
