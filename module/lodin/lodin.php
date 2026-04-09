@@ -163,6 +163,7 @@ public function generatePaymentLink($cart)
         'amount' => (float) $amount,
         'invoiceId' => $invoice_id,
         'paymentType' => 'INST',
+        'cardId' => $invoice_id,
         'description' => 'PrestaShop Order #' . $cart->id,
     ];
     
