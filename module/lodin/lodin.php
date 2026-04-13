@@ -120,7 +120,7 @@ class Lodin extends PaymentModule
     return [$paymentOption];
 }
 
-public function generatePaymentLink($cart)
+public function generatePaymentLink($cart, $return_url = '')
 {
     error_log('=== LODIN generatePaymentLink START ===');
     error_log('Cart ID: ' . $cart->id);
@@ -165,6 +165,7 @@ public function generatePaymentLink($cart)
         'paymentType' => 'INST',
         'cardId' => $invoice_id,
         'description' => 'PrestaShop Order #' . $cart->id,
+        'returnUrl'   => $return_url,
     ];
     
     error_log('Request body: ' . json_encode($body));
