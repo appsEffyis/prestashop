@@ -12,6 +12,7 @@ class LodinReturnModuleFrontController extends ModuleFrontController
 
         // Vérifier que la commande existe
         $order = new Order($id_order);
+        
         if (!Validate::isLoadedObject($order)) {
             error_log('LODIN RETURN: Order not found');
             Tools::redirect('index.php?controller=order&step=1');
@@ -26,14 +27,43 @@ class LodinReturnModuleFrontController extends ModuleFrontController
             return;
         }
 
-        // ✅ Rediriger vers la page de confirmation PrestaShop
-        error_log('LODIN RETURN: Redirecting to order-confirmation');
-        Tools::redirect(
-            'index.php?controller=order-confirmation' .
-            '&id_cart='   . $id_cart .
-            '&id_module=' . $id_module .
-            '&id_order='  . $id_order .
-            '&key='       . $key
-        );
+        if ($order->getCurrentState() == Configuration::get('PS_OS_PAYMENT')) {
+            error_log('LODIN RETURN: Redirecting to order-confirmation');
+            Tools::redirect(
+                'index.php?controller=order-confirmation' .
+                '&id_cart='   . $id_cart .
+                '&id_module=' . $id_module .
+                '&id_order='  . $id_order .
+                '&key='       . $key
+            );
+        }
+        
+        if ($order->getCurrentState() == Configuration::get('PS_OS_ERROR') || 
+            $order->getCurrentState() == Configuration::get('PS_OS_CANCELED') ||
+            $order->getCurrentState() == Configuration::get('PS_OS_BANKWIRE')) 
+        { 
+               
+        
+            $this->restoreCart($id_cart);
+            
+            $this->context->smarty->assign([
+                'order_id' => $id_order,
+                'checkout_url' => $this->context->link->getPageLink('order', true, null, ['step' => 1])
+            ]);
+
+            $this->setTemplate('module:lodin/views/templates/front/payment_error.tpl');
+        }
     }
+     protected function restoreCart($id_cart)
+    {
+        $old_cart = new Cart($id_cart);
+        $duplication = $old_cart->duplicate();
+        if ($duplication && Validate::isLoadedObject($duplication['cart'])) {
+            $this->context->cookie->id_cart = $duplication['cart']->id;
+            $this->context->cart = $duplication['cart'];
+            CartRule::autoAddToCart($this->context);
+            $this->context->cookie->write();
+        }
+    }
+    
 }

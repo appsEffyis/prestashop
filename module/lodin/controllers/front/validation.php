@@ -65,10 +65,11 @@ class LodinValidationModuleFrontController extends ModuleFrontController
             error_log('=== LODIN VALIDATION CONTROLLER SUCCESS ===');
             Tools::redirect($paymentLink);
 
-        } catch (Exception $e) {
+        }  catch (Exception $e) {
             error_log('ERROR: ' . $e->getMessage());
-            $this->context->smarty->assign('error', $e->getMessage());
-            $this->setTemplate('module:lodin/views/templates/front/error.tpl');
+            // On ajoute le message d'erreur à la session pour l'afficher sur la page commande
+            $this->errors[] = $this->trans('Une erreur est survenue lors de la redirection vers Lodin : ', [], 'Modules.Lodin.Shop') . $e->getMessage();
+            $this->redirectWithNotifications('index.php?controller=order&step=1');
         }
     }
 }
