@@ -194,7 +194,24 @@ private function verifySignature($payload, $receivedSignature)
     private function handlePaymentSuccess($order, $data)
     {
         error_log('Processing successful payment');
+
+            // SÉCURITÉ — Vérifier le montant
+        if (isset($data['amount'])) {
+            $amountPaid    = (float) $data['amount'];
+            $amountExpected = (float) $order->total_paid;
+
+            // Tolérance de 0.01 pour les arrondis
+            if (abs($amountPaid - $amountExpected) > 0.01) {
+                error_log('ERROR: Amount mismatch! Expected: ' . $amountExpected . ' Got: ' . $amountPaid);
+                throw new Exception('Amount mismatch: expected ' . $amountExpected . ' got ' . $amountPaid);
+            }
+        } else {
+            // Si pas de montant dans le webhook → on refuse
+            error_log('ERROR: No amount in webhook');
+            throw new Exception('Missing amount in webhook payload');
+        }        
         
+          
         // Check if already paid
         if ($order->getCurrentState() == Configuration::get('PS_OS_PAYMENT')) {
             error_log('WARNING: Order already marked as paid');
