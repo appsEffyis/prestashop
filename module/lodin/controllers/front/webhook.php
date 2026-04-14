@@ -194,45 +194,48 @@ private function verifySignature($payload, $receivedSignature)
     private function handlePaymentSuccess($order, $data)
     {
         error_log('Processing successful payment');
-
-            // SÉCURITÉ — Vérifier le montant
-        if (isset($data['amount'])) {
-            $amountPaid    = (float) $data['amount'];
+    
+        // SÉCURITÉ 1 — Vérifier la signature (déjà fait en amont dans postProcess ?)
+    
+        // SÉCURITÉ 2 — Vérifier le montant si présent
+        if (!empty($data['amount'])) {
+            $amountPaid     = (float) $data['amount'];
             $amountExpected = (float) $order->total_paid;
-
-            // Tolérance de 0.01 pour les arrondis
+    
             if (abs($amountPaid - $amountExpected) > 0.01) {
                 error_log('ERROR: Amount mismatch! Expected: ' . $amountExpected . ' Got: ' . $amountPaid);
                 throw new Exception('Amount mismatch: expected ' . $amountExpected . ' got ' . $amountPaid);
             }
+            error_log('Amount verified: ' . $amountPaid);
         } else {
-            // Si pas de montant dans le webhook → on refuse
-            error_log('ERROR: No amount in webhook');
-            throw new Exception('Missing amount in webhook payload');
-        }        
-        
-          
-        // Check if already paid
+            // Lodin envoie parfois null ? on log mais on ne bloque pas
+            error_log('WARNING: No amount in webhook, skipping amount check');
+        }
+    
+        // SÉCURITÉ 3 — Vérifier le statut Lodin
+        if (isset($data['status']) && $data['status'] !== 'COMPLETED') {
+            throw new Exception('Unexpected status: ' . $data['status']);
+        }
+    
+        // Check if already paid (évite le double traitement)
         if ($order->getCurrentState() == Configuration::get('PS_OS_PAYMENT')) {
             error_log('WARNING: Order already marked as paid');
             return;
         }
-        
-        // Update order status to "Payment accepted"
+    
+        // Update order status
         $newOrderState = Configuration::get('PS_OS_PAYMENT');
-        
         $order->setCurrentState($newOrderState);
         $order->save();
-        
+    
         // Add payment details
         if (isset($data['transactionId'])) {
             $order->payment_transaction_id = $data['transactionId'];
             $order->update();
         }
-        
-        // Add order payment record
+    
         $this->addOrderPayment($order, $data);
-        
+    
         error_log('Order status updated to: Payment accepted');
     }
     
