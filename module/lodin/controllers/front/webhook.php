@@ -176,16 +176,17 @@ private function verifySignature($payload, $receivedSignature)
         
         $cartId = (int) $parts[1];
         error_log('Searching for order with cart ID: ' . $cartId);
-        
-        // Find order by cart ID
+
+        for ($i = 0; $i < 3; $i++) {
         $orderId = Order::getIdByCartId($cartId);
-        
-        if (!$orderId) {
-            error_log('ERROR: No order found for cart ID: ' . $cartId);
-            return null;
+        if ($orderId) {
+            error_log('Found order ID: ' . $orderId . ' (attempt ' . ($i+1) . ')');
+            return new Order($orderId);
         }
-        
-        return new Order($orderId);
+        if ($i < 2) sleep(1);
+    }
+        error_log('ERROR: No order found for cart ID: ' . $cartId);       
+        return null;
     }
     
     /**

@@ -33,7 +33,16 @@ class LodinValidationModuleFrontController extends ModuleFrontController
             $order_id = (int)$this->module->currentOrder;
             error_log('Order created: ' . $order_id);
 
-            // ÉTAPE 2 — Construire la returnUrl
+           //  Construire la returnUrl avec token sécurisé
+            $token = hash_hmac(
+                'sha256',
+                $cart->id . $order_id . $customer->secure_key,
+                Configuration::get('LODIN_CLIENT_SECRET') 
+            );
+
+            $this->context->cookie->lodin_return_token = $token;
+            $this->context->cookie->write();
+            //— Construire la returnUrl
             $return_url = $this->context->link->getModuleLink(
                 'lodin',
                 'return',
@@ -41,7 +50,7 @@ class LodinValidationModuleFrontController extends ModuleFrontController
                     'id_cart'   => (int)$cart->id,
                     'id_order'  => $order_id,
                     'id_module' => (int)$this->module->id,
-                    'key'       => $customer->secure_key,
+                    'token'     => $token,
                 ],
                 true
             );

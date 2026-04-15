@@ -160,7 +160,7 @@ public function generatePaymentLink($cart, $return_url = '')
     ];
 
     $body = [
-        'amount' => (float) $amount,
+        'amount' => round((float)$amount, 2),
         'invoiceId' => $invoice_id,
         'paymentType' => 'INST',
         'cardId' => $invoice_id,
