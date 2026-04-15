@@ -112,7 +112,7 @@ class Lodin extends PaymentModule
     $paymentOption = new PaymentOption();
     $paymentOption
         ->setModuleName($this->name)
-        ->setCallToActionText($this->trans('Pay with Lodin RTP', [], 'Modules.Lodin.Shop'))
+        ->setCallToActionText($this->trans('Pay with Bank', [], 'Modules.Lodin.Shop'))
         ->setAction($validationUrl)
         ->setLogo(Media::getMediaPath(_PS_MODULE_DIR_ . $this->name . '/logo.png'));
 
