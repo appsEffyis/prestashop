@@ -1,24 +1,23 @@
-{/**
+{*
  * Lodin RTP Payment Module
- * Generates payment links via Effyis API
  *
- * @author    Lodin < apps@lodinpay.com>
+ * @author    Lodin <apps@lodinpay.com>
  * @copyright 2026 Lodin
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
- */}
+ *}
 {extends file='page.tpl'}
 
 {block name='page_content'}
     <section id="content" class="page-content card card-block">
         <div class="alert alert-danger">
-            {l s='Désolé, votre paiement n\'a pas pu être traité.' d='Modules.Lodin.Shop'}
+            {l s='Sorry, your payment could not be processed.' mod='lodin'}
         </div>
-        
-        <p>{l s='Il semble y avoir eu un problème lors de la transaction. Aucun montant n\'a été débité (ou celui-ci sera remboursé).' d='Modules.Lodin.Shop'}</p>
-        
+
+        <p>{l s='There seems to have been a problem with the transaction. No amount has been debited.' mod='lodin'}</p>
+
         <div class="mt-3">
-            <a href="{$checkout_url}" class="btn btn-primary">
-                {l s='Réessayer avec un autre moyen de paiement' d='Modules.Lodin.Shop'}
+            <a href="{$checkout_url|escape:'html':'UTF-8'}" class="btn btn-primary">
+                {l s='Try again with another payment method' mod='lodin'}
             </a>
         </div>
     </section>
