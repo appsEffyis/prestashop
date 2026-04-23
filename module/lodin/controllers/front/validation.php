@@ -38,9 +38,9 @@ class LodinValidationModuleFrontController extends ModuleFrontController
                 'lodin',
                 'return',
                 [
-                    'id_cart'   => (int) $cart->id,
+                    'id_cart' => (int) $cart->id,
                     'id_module' => (int) $module->id,
-                    'token'     => $token,
+                    'token' => $token,
                 ],
                 true
             );

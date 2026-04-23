@@ -44,8 +44,8 @@ class LodinReturnModuleFrontController extends ModuleFrontController
                 'index.php?controller=order-confirmation' .
                 '&id_cart=' . $id_cart .
                 '&id_module=' . $id_module .
-                '&id_order='. $id_order .
-                '&key='. $customer->secure_key
+                '&id_order=' . $id_order .
+                '&key=' . $customer->secure_key
             );
             return;
         }

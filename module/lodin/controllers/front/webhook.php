@@ -119,7 +119,7 @@ class LodinWebhookModuleFrontController extends ModuleFrontController
 
         $cartId = (int) $parts[1];
 
-        for ($i = 0; $i < 3; $i++) {
+        for ($i = 0; $i < 3; ++$i) {
             $orderId = Order::getIdByCartId($cartId);
             if ($orderId) {
                 return new Order($orderId);

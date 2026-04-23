@@ -56,18 +56,18 @@ class Lodin extends PaymentModule
     }
 
 public function uninstall()
-{
-    $tabUninstall = true;
-    try {
-        $tabUninstall = $this->uninstallTab();
-    } catch (Exception $e) {
-        $tabUninstall = false;
-    }
+    {
+        $tabUninstall = true;
+        try {
+            $tabUninstall = $this->uninstallTab();
+        } catch (Exception $e) {
+            $tabUninstall = false;
+        }
 
-    return parent::uninstall()
-        && Configuration::deleteByName('LODIN_CLIENT_ID')
-        && Configuration::deleteByName('LODIN_CLIENT_SECRET');
-}
+        return parent::uninstall()
+            && Configuration::deleteByName('LODIN_CLIENT_ID')
+            && Configuration::deleteByName('LODIN_CLIENT_SECRET');
+    }
 
     private function checkCurrency($cart)
     {
@@ -127,30 +127,21 @@ public function uninstall()
 
 public function generatePaymentLink($cart, $return_url = '')
 {
-    
-    
     $client_id = Configuration::get('LODIN_CLIENT_ID');
     $client_secret = Configuration::get('LODIN_CLIENT_SECRET');
     
-    
-
     if (!$client_id || !$client_secret) {
         
         throw new Exception('Lodin configuration missing');
     }
-
     $invoice_id = 'CART-' . $cart->id . '-' . time();
     $amount = number_format($cart->getOrderTotal(true, Cart::BOTH), 2, '.', '');
     
-    
-
     // Fix: Use explicit ISO 8601 format with Z for UTC
     $timestamp = gmdate('Y-m-d\TH:i:s\Z');
     $payload = $client_id . $timestamp . $amount . $invoice_id;
     $signature = $this->generateSignature($payload, $client_secret);
     
-    
-
     $headers = [
         'Content-Type: application/json',
         'X-Client-Id: ' . $client_id,
@@ -167,9 +158,6 @@ public function generatePaymentLink($cart, $return_url = '')
         'description' => 'PrestaShop Order #' . $cart->id,
         'returnUrl'   => $return_url,
     ];
-    
-    
-
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, self::RTP_API_URL);
     curl_setopt($ch, CURLOPT_POST, 1);
@@ -182,9 +170,7 @@ public function generatePaymentLink($cart, $return_url = '')
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $curlError = curl_error($ch);
     curl_close($ch);
-    
-    
-
+        
     if ($httpCode === 200) {
         $data = json_decode($response, true);
         $paymentLink = $data['url'] ?? null;
@@ -196,8 +182,6 @@ public function generatePaymentLink($cart, $return_url = '')
         throw new Exception('No payment URL in API response');
     }
 
-
-    
     throw new Exception('API error: ' . $response);
 }
 
