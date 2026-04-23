@@ -53,22 +53,21 @@ class Lodin extends PaymentModule
 
    public function uninstall()
 {
-    error_log('=== LODIN UNINSTALL START ===');
+   
     
     // Don't fail if tab doesn't exist
     $tabUninstall = true;
     try {
         $tabUninstall = $this->uninstallTab();
     } catch (Exception $e) {
-        error_log('Tab uninstall warning: ' . $e->getMessage());
+        
     }
     
     $result = parent::uninstall()
         && Configuration::deleteByName('LODIN_CLIENT_ID')
         && Configuration::deleteByName('LODIN_CLIENT_SECRET');
     
-    error_log('Uninstall result: ' . ($result ? 'SUCCESS' : 'FAILED'));
-    error_log('=== LODIN UNINSTALL END ===');
+    
     
     return $result;
 }
@@ -100,18 +99,15 @@ class Lodin extends PaymentModule
      */
     public function hookPaymentOptions($params)
 {
-    error_log('=== LODIN hookPaymentOptions START ===');
-    error_log('Module active: ' . ($this->active ? 'YES' : 'NO'));
-    error_log('Cart ID: ' . $params['cart']->id);
-    error_log('Currency check: ' . ($this->checkCurrency($params['cart']) ? 'PASS' : 'FAIL'));
+    
     
     if (!$this->active || !$this->checkCurrency($params['cart'])) {
-        error_log('=== LODIN hookPaymentOptions ABORTED ===');
+       
         return [];
     }
 
 $validationUrl = $this->context->link->getModuleLink($this->name, 'validation', [], true);
-error_log('Validation URL: ' . $validationUrl);
+
 
 $paymentOption = new PaymentOption();
     $paymentOption
@@ -216,34 +212,29 @@ $paymentOption = new PaymentOption();
 
 public function generatePaymentLink($cart, $return_url = '')
 {
-    error_log('=== LODIN generatePaymentLink START ===');
-    error_log('Cart ID: ' . $cart->id);
+    
     
     $client_id = Configuration::get('LODIN_CLIENT_ID');
     $client_secret = Configuration::get('LODIN_CLIENT_SECRET');
     
-    error_log('Client ID: ' . ($client_id ? 'SET' : 'EMPTY'));
-    error_log('Client Secret: ' . ($client_secret ? 'SET' : 'EMPTY'));
+    
 
     if (!$client_id || !$client_secret) {
-        error_log('ERROR: Lodin configuration missing');
+        
         throw new Exception('Lodin configuration missing');
     }
 
     $invoice_id = 'CART-' . $cart->id . '-' . time();
     $amount = number_format($cart->getOrderTotal(true, Cart::BOTH), 2, '.', '');
     
-    error_log('Invoice ID: ' . $invoice_id);
-    error_log('Amount: ' . $amount);
+    
 
     // Fix: Use explicit ISO 8601 format with Z for UTC
     $timestamp = gmdate('Y-m-d\TH:i:s\Z');
     $payload = $client_id . $timestamp . $amount . $invoice_id;
     $signature = $this->generateSignature($payload, $client_secret);
     
-    error_log('Timestamp: ' . $timestamp);
-    error_log('Payload: ' . $payload);
-    error_log('Signature: ' . $signature);
+    
 
     $headers = [
         'Content-Type: application/json',
@@ -262,7 +253,7 @@ public function generatePaymentLink($cart, $return_url = '')
         'returnUrl'   => $return_url,
     ];
     
-    error_log('Request body: ' . json_encode($body));
+    
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, self::RTP_API_URL);
@@ -277,29 +268,28 @@ public function generatePaymentLink($cart, $return_url = '')
     $curlError = curl_error($ch);
     curl_close($ch);
     
-    error_log('HTTP Code: ' . $httpCode);
-    error_log('Response: ' . $response);
+    
     if ($curlError) {
-        error_log('CURL Error: ' . $curlError);
+        
     }
 
     if ($httpCode === 200) {
     $data = json_decode($response, true);
-    error_log('Decoded response: ' . print_r($data, true));
+   
     $paymentLink = $data['url'] ?? null;  // Changed from 'paymentLink' to 'url'
-    error_log('Payment Link: ' . ($paymentLink ?? 'NULL'));
+   
     
     if ($paymentLink) {
-        error_log('=== LODIN generatePaymentLink SUCCESS ===');
+        
         return ['url' => $paymentLink, 'invoiceId' => $invoice_id];
     } else {
-        error_log('ERROR: No URL in API response');
+       
         throw new Exception('No payment URL in API response');
     }
 }
 
 
-    error_log('=== LODIN generatePaymentLink FAILED ===');
+    
     throw new Exception('API error: ' . $response);
 }
 
@@ -311,16 +301,10 @@ public function generatePaymentLink($cart, $return_url = '')
         $output = null;
         
         if (Tools::isSubmit('submit' . $this->name)) {
-            error_log('Lodin DEBUG POST: ' . print_r($_POST, true));
-            error_log('Lodin DEBUG getValue ID: ' . Tools::getValue('LODIN_CLIENT_ID'));
-            error_log('Lodin DEBUG getValue Secret: ' . Tools::getValue('LODIN_CLIENT_SECRET'));
-            
-            $client_id = strval(Tools::getValue('LODIN_CLIENT_ID'));
-            $client_secret = strval(Tools::getValue('LODIN_CLIENT_SECRET'));
-            
-            error_log('Lodin DEBUG client_id: "' . $client_id . '"');
-            error_log('Lodin DEBUG client_secret: "' . $client_secret . '"');
-            
+
+            $client_id = (string) Tools::getValue('LODIN_CLIENT_ID');
+            $client_secret = (string) Tools::getValue('LODIN_CLIENT_SECRET');
+        
             if (empty($client_id) || empty($client_secret)) {
                 $output .= $this->displayError('Invalid: ID="' . $client_id . '" Secret="' . $client_secret . '"');
             } else {
@@ -393,14 +377,14 @@ public function generatePaymentLink($cart, $return_url = '')
 
  public function generateSignature($payload, $secret)
 {
-    error_log('Generating signature for payload: ' . $payload);
+    
     
     $raw_hmac = hash_hmac('sha256', $payload, $secret, true);
     $base64 = base64_encode($raw_hmac);
     $urlSafe = strtr($base64, ['+' => '-', '/' => '_']);
     $signature = rtrim($urlSafe, '=');
     
-    error_log('Generated signature: ' . $signature);
+   
     
     return $signature;
 }
@@ -418,7 +402,7 @@ public function generatePaymentLink($cart, $return_url = '')
         public function installTab()
     {
         $tab = new Tab();
-        $tab->active = 1;
+        $tab->active = true;
         $tab->class_name = 'AdminLodin';
         $tab->module = $this->name;
         $tab->id_parent = -1; // invisible dans le menu
@@ -432,7 +416,8 @@ public function generatePaymentLink($cart, $return_url = '')
 
     public function uninstallTab()
     {
-        $id_tab = (int) Tab::getIdFromClassName('AdminLodin');
+        $tabs = Tab::getIdFromClassName('AdminLodin');
+        $id_tab = is_array($tabs) ? (int) reset($tabs) : (int) $tabs;
         if ($id_tab) {
             $tab = new Tab($id_tab);
             return $tab->delete();

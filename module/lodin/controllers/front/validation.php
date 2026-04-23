@@ -15,6 +15,8 @@ class LodinValidationModuleFrontController extends ModuleFrontController
         }
 
         try {
+            /** @var Lodin $module */
+            $module   = $this->module;
             $customer = new Customer($cart->id_customer);
 
             // ÉTAPE 1 — Construire le token et la return URL
@@ -29,23 +31,23 @@ class LodinValidationModuleFrontController extends ModuleFrontController
                 'return',
                 [
                     'id_cart'   => (int) $cart->id,
-                    'id_module' => (int) $this->module->id,
+                    'id_module' => (int) $module->id,
                     'token'     => $token,
                 ],
                 true
             );
 
             // ÉTAPE 2 — Générer le lien AVANT de créer la commande
-            $result      = $this->module->generatePaymentLink($cart, $return_url);
+            $result      = $module->generatePaymentLink($cart, $return_url);
             $paymentLink = $result['url'];
             $invoiceId   = $result['invoiceId'];
 
             // ÉTAPE 3 — Créer la commande
-            $this->module->validateOrder(
+            $module->validateOrder(
                 (int) $cart->id,
                 (int) Configuration::get('PS_OS_BANKWIRE'),
                 $cart->getOrderTotal(true, Cart::BOTH),
-                $this->module->displayName,
+                $module->displayName,
                 null,
                 ['transaction_id' => $invoiceId],
                 (int) $cart->id_currency,
