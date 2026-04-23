@@ -1,0 +1,71 @@
+/* Hide default PrestaShop title and logo */
+.payment-option:has(.lodin-custom-wrapper) label,
+.payment-option:has(.lodin-custom-wrapper) img:not(.lodin-img-logo):not([src*="Banks"]) {
+    display: none !important;
+}
+
+/* Force display without waiting for click */
+.additional-information {
+    display: block !important;
+}
+
+/* Main wrapper */
+.lodin-custom-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin-top: -35px;
+    margin-left: -20px;
+}
+
+.lodin-logo-column {
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.lodin-img-logo {
+    width: 45px !important;
+    height: 45px !important;
+    object-fit: contain;
+    background: transparent !important;
+    mix-blend-mode: multiply;
+    display: block;
+}
+
+.lodin-text-column {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding-top: 0;
+}
+
+.lodin-main-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #232323;
+    line-height: 1.1;
+}
+
+.lodin-main-subtitle {
+    font-size: 15px;
+    color: #7a7a7a;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.lodin-banks-column {
+    margin-left: auto;
+}
+
+@media (max-width: 767px) {
+    .lodin-custom-wrapper {
+        margin-top: -30px;
+        flex-wrap: wrap;
+    }
+    .lodin-banks-column {
+        display: none;
+    }
+}

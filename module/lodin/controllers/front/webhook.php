@@ -162,7 +162,7 @@ class LodinWebhookModuleFrontController extends ModuleFrontController
             $message           = new Message();
             $message->message  = 'Payment failed: ' . pSQL($data['errorMessage']);
             $message->id_order = $order->id;
-            $message->private  = 1;
+            $message->private = true;
             $message->add();
         }
     }

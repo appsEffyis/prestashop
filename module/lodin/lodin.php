@@ -101,118 +101,36 @@ class Lodin extends PaymentModule
     /**
      * Display Lodin option in checkout
      */
-    public function hookPaymentOptions($params)
-{
-    
-    
-    if (!$this->active || !$this->checkCurrency($params['cart'])) {
-       
-        return [];
-    }
+   public function hookPaymentOptions($params)
+    {
+        if (!$this->active || !$this->checkCurrency($params['cart'])) {
+            return [];
+        }
 
-$validationUrl = $this->context->link->getModuleLink($this->name, 'validation', [], true);
-
-
-$paymentOption = new PaymentOption();
-    $paymentOption
-        ->setModuleName($this->name)
-        // On laisse un texte pour le moteur mais on le cache totalement en CSS
-        ->setCallToActionText($this->trans('', [], 'Modules.Lodin.Shop'))
-        ->setAction($validationUrl)
-        ->setLogo(null) 
-        ->setAdditionalInformation(
-            '<div class="lodin-custom-wrapper">' .
-                '<div class="lodin-logo-column">' .
-                    '<img src="' . Media::getMediaPath(_PS_MODULE_DIR_ . $this->name . '/views/img/logo_lodin_rm.png') . '" class="lodin-img-logo" />' .
-                '</div>' .
-                '<div class="lodin-text-column">' .
-                    '<span class="lodin-main-title">' . $this->trans('Pay by Bank', [], 'Modules.Lodin.Shop') . '</span>' .
-                    '<p class="lodin-main-subtitle">' . $this->trans('Deposit securely from your bank app - no card needed.', [], 'Modules.Lodin.Shop') . '</p>' .
-                '</div>' .
-                '<div class="lodin-banks-column">' .
-                    '<img src="' . $this->_path . 'views/img/Banks.png" style="height:35px;" />' .
-                '</div>' .
-            '</div>' .
-            '<style>
-                /* 1. ON CACHE LE TITRE ET L\'IMAGE PAR DÉFAUT DE PRESTASHOP */
-                .payment-option:has(.lodin-custom-wrapper) label,
-                .payment-option:has(.lodin-custom-wrapper) img:not(.lodin-img-logo):not([src*="Banks"]) {
-                    display: none !important;
-                }
-
-                /* 2. ON FORCE L\'AFFICHAGE DU CONTENU SANS ATTENDRE LE CLIC */
-                .additional-information {
-                    display: block !important;
-                }
-
-                /* 3. DESIGN SANS CADRE ET ALIGNÉ À GAUCHE (Image 2) */
-                .lodin-custom-wrapper {
-                    display: flex;
-                    align-items: center;
-                    width: 100%;
-                    background: transparent !important; /* Pas de fond */
-                    border: none !important;           /* Pas de cadre */
-                    padding: 0 !important;             /* Pas d\'espacement interne */
-                    margin-top: -35px;                  /* Remonte le bloc au niveau du bouton radio */
-                    margin-left: -20px;                  /* Décale à droite du bouton radio */
-                }
-
-                .lodin-logo-column {
-                    margin-right: 12px;
-                    flex-shrink: 0;
-                }
-
-                .lodin-img-logo {
-                    width: 45px !important;
-                    height: 45px !important;
-                    object-fit: contain;
-                    background: transparent !important;
-                    mix-blend-mode: multiply;
-                    display: block;
-                }
-
-                .lodin-text-column {
-                    display: flex;
-                    flex-direction: column;
-                    flex-grow: 1;
-                    padding-top: 0;
-                }
-
-                .lodin-main-title {
-                    font-size: 18px;
-                    font-weight: 700;
-                    color: #232323;
-                    line-height: 1.1;
-                }
-
-                .lodin-main-subtitle {
-                    font-size: 15px;
-                    color: #7a7a7a;
-                    margin: 0;
-                    line-height: 1.2;
-                }
-
-                .lodin-banks-column {
-                    margin-left: auto;
-                    padding-right: -40px;
-                }
-
-                /* Ajustement pour Mobile */
-                @media (max-width: 767px) {
-                    .lodin-custom-wrapper {
-                        margin-top: -30px;
-                        flex-wrap: wrap;
-                    }
-                    .lodin-banks-column {
-                        display: none; /* Souvent masqué sur mobile pour gagner de la place */
-                    }
-                }
-            </style>'
+        // Charger le CSS externe au lieu du style inline
+        $this->context->controller->registerStylesheet(
+            'lodin-css',
+            'modules/' . $this->name . '/views/css/lodin.css'
         );
 
-    return [$paymentOption];
+        $validationUrl = $this->context->link->getModuleLink($this->name, 'validation', [], true);
 
-}
+        $this->context->smarty->assign([
+            'logo_url'  => Media::getMediaPath(_PS_MODULE_DIR_ . $this->name . '/views/img/logo_lodin_rm.png'),
+            'banks_url' => $this->_path . 'views/img/Banks.png',
+        ]);
+
+        $paymentOption = new PaymentOption();
+        $paymentOption
+            ->setModuleName($this->name)
+            ->setCallToActionText($this->trans('', [], 'Modules.Lodin.Shop'))
+            ->setAction($validationUrl)
+            ->setAdditionalInformation(
+                $this->fetch('module:lodin/views/templates/hook/payment_option.tpl')
+            );
+
+        return [$paymentOption];
+    }
 
 public function generatePaymentLink($cart, $return_url = '')
 {
@@ -420,8 +338,7 @@ public function generatePaymentLink($cart, $return_url = '')
 
     public function uninstallTab()
     {
-        $tabs = Tab::getIdFromClassName('AdminLodin');
-        $id_tab = is_array($tabs) ? (int) reset($tabs) : (int) $tabs;
+        $id_tab = (int) Tab::getIdFromClassName('AdminLodin');
         if ($id_tab) {
             $tab = new Tab($id_tab);
             return $tab->delete();
