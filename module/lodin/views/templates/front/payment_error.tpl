@@ -1,3 +1,11 @@
+{/**
+ * Lodin RTP Payment Module
+ * Generates payment links via Effyis API
+ *
+ * @author    Lodin < apps@lodinpay.com>
+ * @copyright 2026 Lodin
+ * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
+ */}
 {extends file='page.tpl'}
 
 {block name='page_content'}
