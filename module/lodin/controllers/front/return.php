@@ -15,19 +15,19 @@ class LodinReturnModuleFrontController extends ModuleFrontController
 {
     public function postProcess()
     {
-        $id_cart   = (int) Tools::getValue('id_cart');
+        $id_cart = (int) Tools::getValue('id_cart');
         $id_module = (int) Tools::getValue('id_module');
-        $token     = Tools::getValue('token');
+        $token = Tools::getValue('token');
 
         $id_order = (int) Order::getIdByCartId($id_cart);
-        $order    = new Order($id_order);
+        $order = new Order($id_order);
 
         if (!Validate::isLoadedObject($order)) {
             Tools::redirect('index.php?controller=order&step=1');
             return;
         }
 
-        $customer       = new Customer($order->id_customer);
+        $customer = new Customer($order->id_customer);
         $expected_token = hash_hmac(
             'sha256',
             $id_cart . $customer->secure_key,
@@ -42,10 +42,10 @@ class LodinReturnModuleFrontController extends ModuleFrontController
         if ($order->getCurrentState() == Configuration::get('PS_OS_PAYMENT')) {
             Tools::redirect(
                 'index.php?controller=order-confirmation' .
-                '&id_cart='   . $id_cart .
+                '&id_cart=' . $id_cart .
                 '&id_module=' . $id_module .
-                '&id_order='  . $id_order .
-                '&key='       . $customer->secure_key
+                '&id_order='. $id_order .
+                '&key='. $customer->secure_key
             );
             return;
         }
@@ -62,7 +62,7 @@ class LodinReturnModuleFrontController extends ModuleFrontController
 
     protected function restoreCart($id_cart)
     {
-        $old_cart    = new Cart($id_cart);
+        $old_cart = new Cart($id_cart);
         $duplication = $old_cart->duplicate();
 
         if ($duplication && Validate::isLoadedObject($duplication['cart'])) {

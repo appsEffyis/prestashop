@@ -24,14 +24,14 @@ class LodinWebhookModuleFrontController extends ModuleFrontController
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
-            die('Method Not Allowed');
+            exit('Method Not Allowed');
         }
 
         $payload = file_get_contents('php://input');
 
         if (empty($payload)) {
             http_response_code(400);
-            die('Bad Request');
+            exit('Bad Request');
         }
 
         $signature = isset($_SERVER['HTTP_X_WEBHOOK_SIGNATURE'])
@@ -40,23 +40,23 @@ class LodinWebhookModuleFrontController extends ModuleFrontController
 
         if (!$this->verifySignature($payload, $signature)) {
             http_response_code(401);
-            die('Unauthorized');
+            exit('Unauthorized');
         }
 
         $data = json_decode($payload, true);
 
         if (!$data) {
             http_response_code(400);
-            die('Invalid JSON');
+            exit('Invalid JSON');
         }
 
         try {
             $this->handleWebhook($data);
             http_response_code(200);
-            die('OK');
+            exit('OK');
         } catch (Exception $e) {
             http_response_code(500);
-            die('Internal Server Error');
+            exit('Internal Server Error');
         }
     }
 
@@ -72,8 +72,8 @@ class LodinWebhookModuleFrontController extends ModuleFrontController
             return false;
         }
 
-        $raw_hmac          = hash_hmac('sha256', $payload, $clientSecret, true);
-        $base64            = base64_encode($raw_hmac);
+        $raw_hmac = hash_hmac('sha256', $payload, $clientSecret, true);
+        $base64 = base64_encode($raw_hmac);
         $expectedSignature = rtrim(strtr($base64, ['+' => '-', '/' => '_']), '=');
 
         return hash_equals($expectedSignature, $receivedSignature);
@@ -135,7 +135,7 @@ class LodinWebhookModuleFrontController extends ModuleFrontController
     private function handlePaymentSuccess($order, $data)
     {
         if (!empty($data['amount'])) {
-            $amountPaid     = (float) $data['amount'];
+            $amountPaid = (float) $data['amount'];
             $amountExpected = (float) $order->total_paid;
 
             if (abs($amountPaid - $amountExpected) > 0.01) {
@@ -159,8 +159,8 @@ class LodinWebhookModuleFrontController extends ModuleFrontController
         $order->save();
 
         if (isset($data['errorMessage'])) {
-            $message           = new Message();
-            $message->message  = 'Payment failed: ' . pSQL($data['errorMessage']);
+            $message = new Message();
+            $message->message = 'Payment failed: ' . pSQL($data['errorMessage']);
             $message->id_order = $order->id;
             $message->private = true;
             $message->add();
@@ -169,14 +169,14 @@ class LodinWebhookModuleFrontController extends ModuleFrontController
 
     private function addOrderPayment($order, $data)
     {
-        $orderPayment                   = new OrderPayment();
-        $orderPayment->order_reference  = $order->reference;
-        $orderPayment->id_currency      = $order->id_currency;
-        $orderPayment->amount           = isset($data['amount']) ? (float) $data['amount'] : $order->total_paid;
-        $orderPayment->payment_method   = 'Lodin RTP';
-        $orderPayment->conversion_rate  = 1;
-        $orderPayment->transaction_id   = isset($data['transactionId']) ? pSQL($data['transactionId']) : null;
-        $orderPayment->date_add         = date('Y-m-d H:i:s');
+        $orderPayment = new OrderPayment();
+        $orderPayment->order_reference = $order->reference;
+        $orderPayment->id_currency = $order->id_currency;
+        $orderPayment->amount = isset($data['amount']) ? (float) $data['amount'] : $order->total_paid;
+        $orderPayment->payment_method = 'Lodin RTP';
+        $orderPayment->conversion_rate = 1;
+        $orderPayment->transaction_id = isset($data['transactionId']) ? pSQL($data['transactionId']) : null;
+        $orderPayment->date_add = date('Y-m-d H:i:s');
         $orderPayment->add();
     }
 }

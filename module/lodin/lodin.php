@@ -55,25 +55,18 @@ class Lodin extends PaymentModule
         ];
     }
 
-   public function uninstall()
+public function uninstall()
 {
-   
-    
-    // Don't fail if tab doesn't exist
     $tabUninstall = true;
     try {
         $tabUninstall = $this->uninstallTab();
     } catch (Exception $e) {
-        
+        $tabUninstall = false;
     }
-    
-    $result = parent::uninstall()
+
+    return parent::uninstall()
         && Configuration::deleteByName('LODIN_CLIENT_ID')
         && Configuration::deleteByName('LODIN_CLIENT_SECRET');
-    
-    
-    
-    return $result;
 }
 
     private function checkCurrency($cart)
@@ -163,7 +156,7 @@ public function generatePaymentLink($cart, $return_url = '')
         'X-Client-Id: ' . $client_id,
         'X-Timestamp: ' . $timestamp,
         'X-Signature: ' . $signature,
-        'X-Extension-Code: ' . "PRESTASHOP",
+        'X-Extension-Code: PRESTASHOP',
     ];
 
     $body = [
@@ -191,24 +184,17 @@ public function generatePaymentLink($cart, $return_url = '')
     curl_close($ch);
     
     
-    if ($curlError) {
-        
-    }
 
     if ($httpCode === 200) {
-    $data = json_decode($response, true);
-   
-    $paymentLink = $data['url'] ?? null;  // Changed from 'paymentLink' to 'url'
-   
-    
-    if ($paymentLink) {
-        
-        return ['url' => $paymentLink, 'invoiceId' => $invoice_id];
-    } else {
-       
+        $data = json_decode($response, true);
+        $paymentLink = $data['url'] ?? null;
+
+        if ($paymentLink) {
+            return ['url' => $paymentLink, 'invoiceId' => $invoice_id];
+        }
+
         throw new Exception('No payment URL in API response');
     }
-}
 
 
     
@@ -327,7 +313,7 @@ public function generatePaymentLink($cart, $return_url = '')
         $tab->active = true;
         $tab->class_name = 'AdminLodin';
         $tab->module = $this->name;
-        $tab->id_parent = -1; // invisible dans le menu
+        $tab->id_parent = -1; 
 
         foreach (Language::getLanguages(true) as $lang) {
             $tab->name[$lang['id_lang']] = 'Lodin';
