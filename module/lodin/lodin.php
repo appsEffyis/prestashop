@@ -3,7 +3,7 @@
  * Lodin RTP Payment Module
  * Generates payment links via Effyis API
  *
- * @author    Lodin < apps@lodinpay.com>
+ * @author    Lodin <apps@lodinpay.com>
  * @copyright 2026 Lodin
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  */
@@ -55,7 +55,7 @@ class Lodin extends PaymentModule
         ];
     }
 
-public function uninstall()
+    public function uninstall()
     {
         $tabUninstall = true;
         try {
@@ -74,33 +74,32 @@ public function uninstall()
         $currency_order = new Currency($cart->id_currency);
         $currencies_module = $this->getCurrency($cart->id_currency);
 
-         if ($currency_order->iso_code !== 'EUR') {
-           return false;
-    }
-        
+        if ($currency_order->iso_code !== 'EUR') {
+            return false;
+        }
+
         if (is_array($currencies_module) === false || empty($currencies_module)) {
             return false;
         }
-        
+
         foreach ($currencies_module as $currency_module) {
             if ($currency_order->id == $currency_module['id_currency']) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
     /**
      * Display Lodin option in checkout
      */
-   public function hookPaymentOptions($params)
+    public function hookPaymentOptions($params)
     {
         if (!$this->active || !$this->checkCurrency($params['cart'])) {
             return [];
         }
 
-        // Charger le CSS externe au lieu du style inline
         $this->context->controller->registerStylesheet(
             'lodin-css',
             'modules/' . $this->name . '/views/css/lodin.css'
@@ -109,7 +108,7 @@ public function uninstall()
         $validationUrl = $this->context->link->getModuleLink($this->name, 'validation', [], true);
 
         $this->context->smarty->assign([
-            'logo_url'  => Media::getMediaPath(_PS_MODULE_DIR_ . $this->name . '/views/img/logo_lodin_rm.png'),
+            'logo_url' => Media::getMediaPath(_PS_MODULE_DIR_ . $this->name . '/views/img/logo_lodin_rm.png'),
             'banks_url' => $this->_path . 'views/img/Banks.png',
         ]);
 
@@ -125,84 +124,79 @@ public function uninstall()
         return [$paymentOption];
     }
 
-public function generatePaymentLink($cart, $return_url = '')
-{
-    $client_id = Configuration::get('LODIN_CLIENT_ID');
-    $client_secret = Configuration::get('LODIN_CLIENT_SECRET');
-    
-    if (!$client_id || !$client_secret) {
-        
-        throw new Exception('Lodin configuration missing');
-    }
-    $invoice_id = 'CART-' . $cart->id . '-' . time();
-    $amount = number_format($cart->getOrderTotal(true, Cart::BOTH), 2, '.', '');
-    
-    // Fix: Use explicit ISO 8601 format with Z for UTC
-    $timestamp = gmdate('Y-m-d\TH:i:s\Z');
-    $payload = $client_id . $timestamp . $amount . $invoice_id;
-    $signature = $this->generateSignature($payload, $client_secret);
-    
-    $headers = [
-        'Content-Type: application/json',
-        'X-Client-Id: ' . $client_id,
-        'X-Timestamp: ' . $timestamp,
-        'X-Signature: ' . $signature,
-        'X-Extension-Code: PRESTASHOP',
-    ];
+    public function generatePaymentLink($cart, $return_url = '')
+    {
+        $client_id = Configuration::get('LODIN_CLIENT_ID');
+        $client_secret = Configuration::get('LODIN_CLIENT_SECRET');
 
-    $body = [
-        'amount' => round((float)$amount, 2),
-        'invoiceId' => $invoice_id,
-        'paymentType' => 'INST',
-        'cardId' => $invoice_id,
-        'description' => 'PrestaShop Order #' . $cart->id,
-        'returnUrl'   => $return_url,
-    ];
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, self::RTP_API_URL);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 20);
-
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlError = curl_error($ch);
-    curl_close($ch);
-        
-    if ($httpCode === 200) {
-        $data = json_decode($response, true);
-        $paymentLink = $data['url'] ?? null;
-
-        if ($paymentLink) {
-            return ['url' => $paymentLink, 'invoiceId' => $invoice_id];
+        if (!$client_id || !$client_secret) {
+            throw new Exception('Lodin configuration missing');
         }
 
-        throw new Exception('No payment URL in API response');
+        $invoice_id = 'CART-' . $cart->id . '-' . time();
+        $amount = number_format($cart->getOrderTotal(true, Cart::BOTH), 2, '.', '');
+
+        $timestamp = gmdate('Y-m-d\TH:i:s\Z');
+        $payload = $client_id . $timestamp . $amount . $invoice_id;
+        $signature = $this->generateSignature($payload, $client_secret);
+
+        $headers = [
+            'Content-Type: application/json',
+            'X-Client-Id: ' . $client_id,
+            'X-Timestamp: ' . $timestamp,
+            'X-Signature: ' . $signature,
+            'X-Extension-Code: PRESTASHOP',
+        ];
+
+        $body = [
+            'amount' => round((float) $amount, 2),
+            'invoiceId' => $invoice_id,
+            'paymentType' => 'INST',
+            'cardId' => $invoice_id,
+            'description' => 'PrestaShop Order #' . $cart->id,
+            'returnUrl' => $return_url,
+        ];
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, self::RTP_API_URL);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode === 200) {
+            $data = json_decode($response, true);
+            $paymentLink = $data['url'] ?? null;
+
+            if ($paymentLink) {
+                return ['url' => $paymentLink, 'invoiceId' => $invoice_id];
+            }
+
+            throw new Exception('No payment URL in API response');
+        }
+
+        throw new Exception('API error: ' . $response);
     }
-
-    throw new Exception('API error: ' . $response);
-}
-
-
-
 
     public function getContent()
     {
         $output = null;
-        
-        if (Tools::isSubmit('submit' . $this->name)) {
 
+        if (Tools::isSubmit('submit' . $this->name)) {
             $client_id = (string) Tools::getValue('LODIN_CLIENT_ID');
             $client_secret = (string) Tools::getValue('LODIN_CLIENT_SECRET');
-        
+
             if (empty($client_id) || empty($client_secret)) {
-                $output .= $this->displayError('Invalid: ID="' . $client_id . '" Secret="' . $client_secret . '"');
+                $output .= $this->displayError('Invalid configuration');
             } else {
                 Configuration::updateValue('LODIN_CLIENT_ID', $client_id);
                 Configuration::updateValue('LODIN_CLIENT_SECRET', $client_secret);
-                $output .= $this->displayConfirmation('Settings updated! ID saved.');
+                $output .= $this->displayConfirmation('Settings updated successfully.');
             }
         }
 
@@ -261,43 +255,36 @@ public function generatePaymentLink($cart, $return_url = '')
         return $helper;
     }
 
-    /**
-     * Generate RTP payment link (validation controller target)
-     */
-   
-    
+    public function generateSignature($payload, $secret)
+    {
+        $raw_hmac = hash_hmac('sha256', $payload, $secret, true);
+        $base64 = base64_encode($raw_hmac);
+        $urlSafe = strtr($base64, ['+' => '-', '/' => '_']);
 
- public function generateSignature($payload, $secret)
-{
-    
-    
-    $raw_hmac = hash_hmac('sha256', $payload, $secret, true);
-    $base64 = base64_encode($raw_hmac);
-    $urlSafe = strtr($base64, ['+' => '-', '/' => '_']);
-    $signature = rtrim($urlSafe, '=');
-    
-   
-    
-    return $signature;
-}
-
+        return rtrim($urlSafe, '=');
+    }
 
     public function hookPaymentReturn($params)
     {
-        // Handle return from payment link
         $order = $params['order'];
         if ($order->getCurrentOrderState()->id != Configuration::get('PS_OS_PAYMENT')) {
-            Tools::redirect('index.php?controller=order-confirmation&id_cart=' . (int)$order->id . '&id_module=' . (int)$this->id . '&id_order=' . (int)$order->id . '&key=' . $order->secure_key);
+            Tools::redirect(
+                'index.php?controller=order-confirmation' .
+                '&id_cart=' . (int) $order->id .
+                '&id_module=' . (int) $this->id .
+                '&id_order=' . (int) $order->id .
+                '&key=' . $order->secure_key
+            );
         }
     }
 
-        public function installTab()
+    public function installTab()
     {
         $tab = new Tab();
         $tab->active = true;
         $tab->class_name = 'AdminLodin';
         $tab->module = $this->name;
-        $tab->id_parent = -1; 
+        $tab->id_parent = -1;
 
         foreach (Language::getLanguages(true) as $lang) {
             $tab->name[$lang['id_lang']] = 'Lodin';
@@ -311,8 +298,10 @@ public function generatePaymentLink($cart, $return_url = '')
         $id_tab = (int) Tab::getIdFromClassName('AdminLodin');
         if ($id_tab) {
             $tab = new Tab($id_tab);
+
             return $tab->delete();
         }
+
         return true;
     }
 }

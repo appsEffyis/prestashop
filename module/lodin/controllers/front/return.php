@@ -1,9 +1,8 @@
 <?php
 /**
  * Lodin RTP Payment Module
- * Generates payment links via Effyis API
  *
- * @author    Lodin < apps@lodinpay.com>
+ * @author    Lodin <apps@lodinpay.com>
  * @copyright 2026 Lodin
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  */
@@ -24,6 +23,7 @@ class LodinReturnModuleFrontController extends ModuleFrontController
 
         if (!Validate::isLoadedObject($order)) {
             Tools::redirect('index.php?controller=order&step=1');
+
             return;
         }
 
@@ -36,6 +36,7 @@ class LodinReturnModuleFrontController extends ModuleFrontController
 
         if (!hash_equals($expected_token, $token)) {
             Tools::redirect('index.php?controller=order&step=1');
+
             return;
         }
 
@@ -47,13 +48,14 @@ class LodinReturnModuleFrontController extends ModuleFrontController
                 '&id_order=' . $id_order .
                 '&key=' . $customer->secure_key
             );
+
             return;
         }
 
         $this->restoreCart($id_cart);
 
         $this->context->smarty->assign([
-            'order_id'     => $id_order,
+            'order_id' => $id_order,
             'checkout_url' => $this->context->link->getPageLink('order', true, null, ['step' => 1]),
         ]);
 
@@ -66,7 +68,7 @@ class LodinReturnModuleFrontController extends ModuleFrontController
         $duplication = $old_cart->duplicate();
 
         if ($duplication && Validate::isLoadedObject($duplication['cart'])) {
-            $this->context->cookie->__set('id_cart', $duplication['cart']->id); // 👈 fix
+            $this->context->cookie->__set('id_cart', $duplication['cart']->id);
             $this->context->cart = $duplication['cart'];
             CartRule::autoAddToCart($this->context);
             $this->context->cookie->write();

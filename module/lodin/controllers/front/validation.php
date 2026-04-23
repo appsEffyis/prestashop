@@ -1,9 +1,8 @@
 <?php
 /**
  * Lodin RTP Payment Module
- * Generates payment links via Effyis API
  *
- * @author    Lodin < apps@lodinpay.com>
+ * @author    Lodin <apps@lodinpay.com>
  * @copyright 2026 Lodin
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  */
@@ -27,7 +26,6 @@ class LodinValidationModuleFrontController extends ModuleFrontController
             $module = $this->module;
             $customer = new Customer($cart->id_customer);
 
-            // ÉTAPE 1 — Construire le token et la return URL
             $token = hash_hmac(
                 'sha256',
                 $cart->id . $customer->secure_key,
@@ -45,12 +43,10 @@ class LodinValidationModuleFrontController extends ModuleFrontController
                 true
             );
 
-            // ÉTAPE 2 — Générer le lien AVANT de créer la commande
             $result = $module->generatePaymentLink($cart, $return_url);
             $paymentLink = $result['url'];
             $invoiceId = $result['invoiceId'];
 
-            // ÉTAPE 3 — Créer la commande
             $module->validateOrder(
                 (int) $cart->id,
                 (int) Configuration::get('PS_OS_BANKWIRE'),
@@ -63,12 +59,10 @@ class LodinValidationModuleFrontController extends ModuleFrontController
                 $customer->secure_key
             );
 
-            // ÉTAPE 4 — Rediriger vers la gateway
             Tools::redirect($paymentLink);
-
         } catch (Exception $e) {
             $this->errors[] = $this->trans(
-                'Une erreur est survenue lors de la redirection vers Lodin : ',
+                'An error occurred while redirecting to Lodin: ',
                 [],
                 'Modules.Lodin.Shop'
             ) . $e->getMessage();
