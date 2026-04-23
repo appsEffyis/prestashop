@@ -108,7 +108,7 @@ class Lodin extends PaymentModule
         $validationUrl = $this->context->link->getModuleLink($this->name, 'validation', [], true);
 
         $this->context->smarty->assign([
-            'logo_url' => Media::getMediaPath(_PS_MODULE_DIR_ . $this->name . '/views/img/logo_lodin_rm.png'),
+            'logo_url' => Media::getMediaPath(_PS_MODULE_DIR_ . $this->name . '/views/img/logo.png'),
             'banks_url' => $this->_path . 'views/img/Banks.png',
         ]);
 
