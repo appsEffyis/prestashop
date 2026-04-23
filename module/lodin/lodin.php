@@ -19,6 +19,7 @@ class Lodin extends PaymentModule
 
     public function __construct()
     {
+        $this->module_key = '07f6a598c35fa8a499aa75be3c8f7b60';
         $this->name = 'lodin';
         $this->tab = 'payments_gateways';
         $this->version = '1.0.0';
