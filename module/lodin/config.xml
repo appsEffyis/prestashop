@@ -6,7 +6,11 @@
     <description><![CDATA[Generate instant RTP payment links]]></description>
     <author><![CDATA[Lodin]]></author>
     <tab><![CDATA[payments_gateways]]></tab>
-	<confirmUninstall><![CDATA[Are you sure?]]></confirmUninstall>
+    <confirmUninstall><![CDATA[Are you sure?]]></confirmUninstall>
     <is_configurable>1</is_configurable>
     <need_instance>0</need_instance>
+    <compatibility>
+        <min><![CDATA[1.7.0.0]]></min>
+        <max><![CDATA[8.99.99]]></max>
+    </compatibility>
 </module>

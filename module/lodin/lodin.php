@@ -25,7 +25,7 @@ class Lodin extends PaymentModule
         $this->version = '1.0.0';
         $this->author = 'Lodin';
         $this->need_instance = 0;
-        $this->ps_versions_compliancy = ['min' => '8.1.0', 'max' => _PS_VERSION_];
+        $this->ps_versions_compliancy = ['min' => '1.7.0.0', 'max' => _PS_VERSION_];
         $this->currencies = true;
         $this->currencies_mode = 'checkbox';
 
