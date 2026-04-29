@@ -13,7 +13,7 @@ if (!defined('_PS_VERSION_')) {
 
 class Lodin extends PaymentModule
 {
-    const RTP_API_URL = 'https://api.lodinpay.com/merchant-service/extensions/pay/rtp';
+    const RTP_API_URL = 'https://api-preprod.lodinpay.com/merchant-service/extensions/pay/rtp';
 
     public function __construct()
     {
@@ -296,7 +296,6 @@ class Lodin extends PaymentModule
     public function uninstallTab()
     {
         $tabs = Tab::getCollectionFromModule($this->name);
-    
         if ($tabs && count($tabs)) {
             foreach ($tabs as $tab) {
                 $tab->delete();
