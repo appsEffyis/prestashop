@@ -5,12 +5,13 @@
  *
  * @author    Lodin <apps@lodinpay.com>
  * @copyright 2026 Lodin
- * @license   AFL-3.0
+ * @license Lodin Proprietary License
  */
-use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 if (!defined('_PS_VERSION_')) {
     exit;
 }
+
+use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 
 class Lodin extends PaymentModule
 {
@@ -18,13 +19,13 @@ class Lodin extends PaymentModule
 
     public function __construct()
     {
-        $this->module_key = '07f6a598c35fa8a499aa75be3c8f7b60';
+        $this->module_key = '';
         $this->name = 'lodin';
         $this->tab = 'payments_gateways';
         $this->version = '1.0.0';
         $this->author = 'Lodin';
         $this->need_instance = 0;
-        $this->ps_versions_compliancy = ['min' => '1.7.0.0', 'max' => _PS_VERSION_];
+        $this->ps_versions_compliancy = ['min' => '8.1.0', 'max' => _PS_VERSION_];
         $this->currencies = true;
         $this->currencies_mode = 'checkbox';
 
@@ -57,6 +58,7 @@ class Lodin extends PaymentModule
     public function uninstall()
     {
         $tabUninstall = true;
+
         try {
             $tabUninstall = $this->uninstallTab();
         } catch (Exception $e) {
@@ -266,6 +268,7 @@ class Lodin extends PaymentModule
     public function hookPaymentReturn($params)
     {
         $order = $params['order'];
+
         if ($order->getCurrentOrderState()->id != Configuration::get('PS_OS_PAYMENT')) {
             Tools::redirect(
                 'index.php?controller=order-confirmation' .
@@ -295,6 +298,7 @@ class Lodin extends PaymentModule
     public function uninstallTab()
     {
         $id_tab = (int) Tab::getIdFromClassName('AdminLodin');
+
         if ($id_tab) {
             $tab = new Tab($id_tab);
 
