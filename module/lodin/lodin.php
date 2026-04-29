@@ -25,7 +25,7 @@ class Lodin extends PaymentModule
         $this->version = '1.0.0';
         $this->author = 'Lodin';
         $this->need_instance = 0;
-        $this->ps_versions_compliancy = ['min' => '8.1.0', 'max' => _PS_VERSION_];
+        $this->ps_versions_compliancy = ['min' => '8.1.0', 'max' => '9.0.99'];
         $this->currencies = true;
         $this->currencies_mode = 'checkbox';
 
@@ -113,7 +113,7 @@ class Lodin extends PaymentModule
             'banks_url' => $this->_path . 'views/img/Banks.png',
         ]);
 
-        $paymentOption = new PaymentOption();
+        $paymentOption = new \PrestaShop\PrestaShop\Core\Payment\PaymentOption();
         $paymentOption
             ->setModuleName($this->name)
             ->setCallToActionText($this->trans('', [], 'Modules.Lodin.Shop'))
