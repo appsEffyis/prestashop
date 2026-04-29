@@ -7,7 +7,6 @@
  * @copyright 2026 Lodin
  * @license   AFL-3.0
  */
-use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -112,7 +111,7 @@ class Lodin extends PaymentModule
             'banks_url' => $this->_path . 'views/img/Banks.png',
         ]);
 
-        $paymentOption = new PaymentOption();
+        $paymentOption = new \PrestaShop\PrestaShop\Core\Payment\PaymentOption();
         $paymentOption
             ->setModuleName($this->name)
             ->setCallToActionText($this->trans('', [], 'Modules.Lodin.Shop'))
