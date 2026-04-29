@@ -5,13 +5,13 @@
  *
  * @author    Lodin <apps@lodinpay.com>
  * @copyright 2026 Lodin
- * @license Lodin Proprietary License
+ * @license   AFL-3.0
  */
+use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
+
 if (!defined('_PS_VERSION_')) {
     exit;
 }
-
-use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 
 class Lodin extends PaymentModule
 {
