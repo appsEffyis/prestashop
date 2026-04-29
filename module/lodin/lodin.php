@@ -295,12 +295,12 @@ class Lodin extends PaymentModule
 
     public function uninstallTab()
     {
-        $id_tab = (int) Tab::getIdFromClassName('AdminLodin');
-
-        if ($id_tab) {
-            $tab = new Tab($id_tab);
-
-            return $tab->delete();
+        $tabs = Tab::getCollectionFromModule($this->name);
+    
+        if ($tabs && count($tabs)) {
+            foreach ($tabs as $tab) {
+                $tab->delete();
+            }
         }
 
         return true;
