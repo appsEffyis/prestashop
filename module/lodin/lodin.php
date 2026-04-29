@@ -111,7 +111,7 @@ class Lodin extends PaymentModule
             'banks_url' => $this->_path . 'views/img/Banks.png',
         ]);
 
-        $paymentOption = new \PrestaShop\PrestaShop\Core\Payment\PaymentOption();
+        $paymentOption = new PaymentOption();
         $paymentOption
             ->setModuleName($this->name)
             ->setCallToActionText($this->trans('', [], 'Modules.Lodin.Shop'))
