@@ -7,7 +7,6 @@
  * @copyright 2026 Lodin
  * @license   AFL-3.0
  */
-
 if (!defined('_PS_VERSION_')) {
     exit;
 }
