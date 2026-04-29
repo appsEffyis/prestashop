@@ -7,10 +7,12 @@
  * @copyright 2026 Lodin
  * @license Lodin Proprietary License
  */
-use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
+
 if (!defined('_PS_VERSION_')) {
     exit;
 }
+
+use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 
 class Lodin extends PaymentModule
 {
