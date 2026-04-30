@@ -11,7 +11,7 @@
         <img src="{$logo_url|escape:'htmlall':'UTF-8'}" class="lodin-img-logo" />
     </div>
     <div class="lodin-text-column">
-        <span class="lodin-main-title">{l s='Pay by Bank' mod='lodin'}</span>
+        
         <p class="lodin-main-subtitle">{l s='Deposit securely from your bank app - no card needed.' mod='lodin'}</p>
     </div>
     <div class="lodin-banks-column">

@@ -114,7 +114,7 @@ class Lodin extends PaymentModule
         $paymentOption = new \PrestaShop\PrestaShop\Core\Payment\PaymentOption();
         $paymentOption
             ->setModuleName($this->name)
-            ->setCallToActionText($this->trans('', [], 'Modules.Lodin.Shop'))
+            ->setCallToActionText($this->trans('Pay by Bank', [], 'Modules.Lodin.Shop'))
             ->setAction($validationUrl)
             ->setAdditionalInformation(
                 $this->fetch('module:lodin/views/templates/hook/payment_option.tpl')
